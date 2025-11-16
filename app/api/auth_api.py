@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user
 from app.extensions import db, bcrypt
 from app.models import User
 
-auth_api = Blueprint("auth_api", __name__)
+auth_api = Blueprint("auth_api", __name__, url_prefix="/api/auth")
 
 
 @auth_api.post("/register")

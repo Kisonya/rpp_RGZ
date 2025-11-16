@@ -3,7 +3,8 @@ from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import Ticket
 
-tickets_api = Blueprint("tickets_api", __name__, url_prefix="/tickets")
+tickets_api = Blueprint("tickets_api", __name__, url_prefix="/api/tickets")
+
 
 
 @tickets_api.post("")

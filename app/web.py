@@ -12,7 +12,7 @@ def index():
         return redirect(url_for("web.tickets"))
     return render_template("index.html")
 
-# Страница логина
+# Страница логина (ОСТАВЛЯЕМ ЭТУ)
 @web_bp.route("/login", methods=["GET", "POST"])
 def web_login():
     if request.method == "POST":
@@ -25,7 +25,7 @@ def web_login():
         flash("Неверные имя пользователя или пароль")
     return render_template("login.html")
 
-# Выход
+# Выход (ОСТАВЛЯЕМ ЭТУ)
 @web_bp.route("/logout")
 @login_required
 def web_logout():
@@ -62,7 +62,7 @@ def ticket_detail(ticket_id):
         return redirect(url_for("web.tickets"))
     return render_template("ticket_detail.html", t=t)
 
-# Обновление статуса заявки  (POST + PUT)
+# Обновление статуса заявки
 @web_bp.route("/tickets/<int:ticket_id>/update", methods=["POST", "PUT"])
 @login_required
 def update_ticket(ticket_id):
@@ -72,7 +72,6 @@ def update_ticket(ticket_id):
         flash("Нет прав для изменения этой заявки")
         return redirect(url_for("web.ticket_detail", ticket_id=t.id))
 
-    # JSON для PUT, формы – для POST
     new_status = request.form.get("status") or (request.json.get("status") if request.is_json else None)
 
     if new_status:
@@ -82,7 +81,7 @@ def update_ticket(ticket_id):
     
     return redirect(url_for("web.ticket_detail", ticket_id=t.id))
 
-# Удаление заявки (POST + DELETE)
+# Удаление заявки
 @web_bp.route("/tickets/<int:ticket_id>/delete", methods=["POST", "DELETE"])
 @login_required
 def delete_ticket(ticket_id):
@@ -110,7 +109,7 @@ def users():
         return redirect(url_for("web.index"))
     return render_template("users.html", users=User.query.all())
 
-# Обновление роли пользователя (POST + PUT)
+# Обновление роли
 @web_bp.route("/users/<int:user_id>/update_role", methods=["POST", "PUT"])
 @login_required
 def update_user_role(user_id):
@@ -135,7 +134,7 @@ def update_user_role(user_id):
     flash(f"Роль пользователя {user.username} обновлена")
     return redirect(url_for("web.users"))
 
-# Удаление пользователя (POST + DELETE)
+# Удаление пользователя
 @web_bp.route("/users/<int:user_id>/delete", methods=["POST", "DELETE"])
 @login_required
 def delete_user(user_id):
@@ -153,7 +152,7 @@ def delete_user(user_id):
     flash(f"Пользователь {user.username} был удален")
     return redirect(url_for("web.users"))
 
-# Редактирование заявки (оставляем POST + GET)
+# Редактирование заявки
 @web_bp.route("/tickets/<int:ticket_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_ticket(ticket_id):
@@ -175,3 +174,28 @@ def edit_ticket(ticket_id):
         return redirect(url_for("web.ticket_detail", ticket_id=t.id))
 
     return render_template("edit_ticket.html", ticket=t)
+
+# 🆕 Регистрация (оставляем)
+@web_bp.route("/register", methods=["GET", "POST"])
+def web_register():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+
+        if not username or not password:
+            flash("Заполните все поля")
+            return redirect(url_for("web.web_register"))
+
+        if User.query.filter_by(username=username).first():
+            flash("Пользователь уже существует")
+            return redirect(url_for("web.web_register"))
+
+        user = User(username=username)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+        flash("Регистрация успешна!")
+        return redirect(url_for("web.web_login"))
+
+    return render_template("register.html")

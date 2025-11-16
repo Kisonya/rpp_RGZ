@@ -3,7 +3,8 @@ from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import User
 
-admin_api = Blueprint("admin_api", __name__)
+admin_api = Blueprint("admin_api", __name__, url_prefix="/api/admin")
+
 
 
 @admin_api.get("/users")

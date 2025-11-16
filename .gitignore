@@ -1,0 +1,17 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual env
+.venv/
+
+# Database and instance data
+instance/
+*.db
+
+# Pytest cache
+.pytest_cache/
+
+# IDE configs
+.vscode/
+.idea/
