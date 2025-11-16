@@ -5,7 +5,7 @@ from .models import User, Ticket
 
 def create_app(testing=False):
     app = Flask(__name__)
-    app.config["SECRET_KEY"] = "dev-key"
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "test-secret")
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:" if testing else "sqlite:///data.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

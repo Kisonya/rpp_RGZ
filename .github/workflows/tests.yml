@@ -12,6 +12,7 @@ jobs:
 
     env:
       PYTHONPATH: ${{ github.workspace }}
+      SECRET_KEY: "safe-test-key"
 
     steps:
       - name: Загрузка репозитория
