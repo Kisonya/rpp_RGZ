@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="d-flex align-items-center mb-3">
+    <h3 class="mb-0">Пользователи</h3>
+  </div>
+
+  <table class="table table-striped table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Имя пользователя</th>
+        <th>Роль</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>
+            <form method="POST" action="{{ url_for('web.update_user_role', user_id=user.id) }}">
+              <select name="role" class="form-select" style="width: auto;">
+                <option value="user" {% if user.role == 'user' %}selected{% endif %}>Пользователь</option>
+                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Администратор</option>
+              </select>
+              <button type="submit" class="btn btn-warning btn-sm mt-2">Изменить роль</button>
+            </form>
+          </td>
+          <td>
+            <form method="POST" action="{{ url_for('web.delete_user', user_id=user.id) }}" style="display:inline;">
+              <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4" class="text-center text-muted">Нет пользователей</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

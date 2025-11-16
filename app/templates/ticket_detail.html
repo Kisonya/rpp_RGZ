@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h3>Заявка №{{ t.id }}</h3>
+  <div class="card">
+    <div class="card-body">
+      <p><strong>Название:</strong> {{ t.title }}</p>
+      <p><strong>Описание:</strong> {{ t.description or "—" }}</p>
+      <p><strong>Статус:</strong> {{ t.status }}</p>
+      <p class="text-muted"><strong>Автор:</strong> {{ t.author.username }}</p>
+    </div>
+  </div>
+
+  {% if current_user.role == "admin" or t.author_id == current_user.id %}
+  <form method="POST" action="{{ url_for('web.update_ticket', ticket_id=t.id) }}">
+    <label for="status">Изменить статус:</label>
+    <select name="status" id="status" class="form-control">
+      <option value="open" {% if t.status == 'open' %}selected{% endif %}>open</option>
+      <option value="closed" {% if t.status == 'closed' %}selected{% endif %}>closed</option>
+      <option value="in-progress" {% if t.status == 'in-progress' %}selected{% endif %}>in-progress</option>
+    </select>
+    <button type="submit" class="btn btn-primary mt-3">Изменить статус</button>
+  </form>
+
+  <form method="POST" action="{{ url_for('web.delete_ticket', ticket_id=t.id) }}">
+    <button type="submit" class="btn btn-danger mt-3">Удалить заявку</button>
+  </form>
+
+  <!-- Кнопка редактирования -->
+  <a href="{{ url_for('web.edit_ticket', ticket_id=t.id) }}" class="btn btn-warning mt-3">Редактировать заявку</a>
+  {% endif %}
+
+  <a href="{{ url_for('web.tickets') }}" class="btn btn-secondary mt-3">Назад</a>
+{% endblock %}

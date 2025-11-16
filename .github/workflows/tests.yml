@@ -1,0 +1,32 @@
+name: Проверка проекта (тесты + безопасность)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  run-tests:
+    name: Запуск тестов и проверки безопасности
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Загрузка репозитория
+        uses: actions/checkout@v4
+
+      - name: Установка Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Запуск unit-тестов
+        run: pytest -q
+
+      - name: Проверка безопасности кода (Bandit)
+        run: bandit -r app -q
