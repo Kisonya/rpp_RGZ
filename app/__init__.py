@@ -1,44 +1,42 @@
 from flask import Flask
-from .config import Config
-from .extensions import db, login_manager, bcrypt
-from .models import User
-from .auth import auth_bp
-from .tickets import tickets_bp
-from .admin import admin_bp
-from .web import web_bp
+from .extensions import db, bcrypt, login_manager
+from .models import User, Ticket
 
-def create_app(testing: bool = False):
-    app = Flask(__name__, template_folder="templates")
-    app.config.from_object(Config)
 
-    if testing:
-        app.config.update(
-            SQLALCHEMY_DATABASE_URI="sqlite:///:memory:",
-            TESTING=True,
-            SECRET_KEY="test-secret",
-            WTF_CSRF_ENABLED=False,
-            LOGIN_DISABLED=False,
-        )
+def create_app(testing=False):
+    app = Flask(__name__)
+    app.config["SECRET_KEY"] = "dev-key"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:" if testing else "sqlite:///data.db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    # Init
     db.init_app(app)
-    login_manager.init_app(app)
     bcrypt.init_app(app)
+    login_manager.init_app(app)
+
+    # Flask-Login → НЕ ДЕЛАТЬ РЕДИРЕКТЫ НА /login
+    login_manager.login_view = None
+    login_manager.session_protection = None
 
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # Регистрируем все модули (Blueprint'ы)
-    app.register_blueprint(web_bp)      # веб-страницы (HTML)
-    app.register_blueprint(auth_bp)     # /register, /login (REST)
-    app.register_blueprint(tickets_bp)  # /tickets* (REST)
-    app.register_blueprint(admin_bp)    # /users* (REST)
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        return {"error": "unauthorized"}, 401
 
+    # --- API ---
+    from app.api.auth_api import auth_api
+    from app.api.tickets_api import tickets_api
+    from app.api.admin_api import admin_api
 
-    with app.app_context():
-        db.create_all()
+    app.register_blueprint(auth_api)
+    app.register_blueprint(tickets_api)
+    app.register_blueprint(admin_api)
+
+    # --- WEB ---
+    from .web import web_bp
+    app.register_blueprint(web_bp)
 
     return app
-
-# Эта строка просто подавляет предупреждение IDE
-app = None  # type: ignore
