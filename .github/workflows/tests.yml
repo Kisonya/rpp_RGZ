@@ -1,4 +1,4 @@
-name: Проверка проекта (тесты + безопасность)
+name: Проверка и безопасность проекта
 
 on:
   push:
@@ -7,9 +7,11 @@ on:
     branches: [ "main" ]
 
 jobs:
-  run-tests:
-    name: Запуск тестов и проверки безопасности
+  test-and-security:
     runs-on: ubuntu-latest
+
+    env:
+      PYTHONPATH: ${{ github.workspace }}
 
     steps:
       - name: Загрузка репозитория
@@ -28,5 +30,5 @@ jobs:
       - name: Запуск unit-тестов
         run: pytest -q
 
-      - name: Проверка безопасности кода (Bandit)
+      - name: Проверка безопасности (Bandit)
         run: bandit -r app -q
