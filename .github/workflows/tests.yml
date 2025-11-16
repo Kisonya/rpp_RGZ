@@ -1,4 +1,4 @@
-name: Проверка и безопасность проекта
+name: Проверка проекта
 
 on:
   push:
@@ -7,12 +7,9 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test-and-security:
+  run-tests:
+    name: Тестирование и анализ безопасности
     runs-on: ubuntu-latest
-
-    env:
-      PYTHONPATH: ${{ github.workspace }}
-      SECRET_KEY: "safe-test-key"
 
     steps:
       - name: Загрузка репозитория
@@ -28,8 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Запуск unit-тестов
+      - name: Добавление пути проекта (PYTHONPATH)
+        run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
+
+      - name: Запуск unit-тестов (pytest)
         run: pytest -q
 
-      - name: Проверка безопасности (Bandit)
+      - name: Проверка безопасности кода (Bandit)
         run: bandit -r app -q
