@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from .extensions import db, bcrypt, login_manager
 from .models import User, Ticket
