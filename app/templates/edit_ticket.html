@@ -1,19 +1,44 @@
-{% extends "base.html" %}
+{% extends "base.html" %} 
+{# Эта строка говорит, что текущий шаблон использует общий шаблон base.html.
+   То есть всё оформление (шапка, меню, стили) берётся из base.html,
+   а внутрь вставляется только то, что находится внутри блока content. #}
 
-{% block content %}
+{% block content %} 
+{# Начало блока, куда будет вставлено содержимое страницы #}
+
   <h3>Редактирование заявки №{{ ticket.id }}</h3>
+  {# Заголовок страницы. {{ ticket.id }} — подставляется реальный номер заявки #}
+
   <form method="POST" action="{{ url_for('web.edit_ticket', ticket_id=ticket.id) }}">
-    <input type="hidden" name="_method" value="PUT">  <!-- Скрытое поле для имитации PUT -->
+  {# Форма отправляет данные методом POST.
+     url_for('web.edit_ticket', ticket_id=ticket.id) — генерирует правильный URL,
+     куда нужно отправить данные. #}
+
+    <input type="hidden" name="_method" value="PUT">
+    {# Скрытое поле, которое притворяется HTTP-методом PUT.
+       HTML-формы умеют отправлять только GET и POST,
+       поэтому PUT «эмулируется» через скрытое поле. #}
     
     <div class="mb-3">
       <label for="title" class="form-label">Название</label>
       <input type="text" class="form-control" id="title" name="title" value="{{ ticket.title }}" required>
+      {# Поле ввода названия заявки.
+         value="{{ ticket.title }}" — автоматически подставляет текущее название,
+         чтобы пользователь мог его отредактировать. #}
     </div>
+
     <div class="mb-3">
       <label for="description" class="form-label">Описание</label>
       <textarea class="form-control" id="description" name="description">{{ ticket.description }}</textarea>
+      {# То же самое, но для описания заявки. #}
     </div>
+
     <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+    {# Кнопка отправки формы. #}
   </form>
+
   <a href="{{ url_for('web.ticket_detail', ticket_id=ticket.id) }}" class="btn btn-secondary mt-3">Назад</a>
+  {# Кнопка «назад» к странице просмотра заявки. #}
+
 {% endblock %}
+{# Конец блока контента #}

@@ -1,11 +1,16 @@
 {% extends "base.html" %}
+{# Страница использует общий шаблон base.html #}
 
 {% block content %}
+
   <div class="d-flex align-items-center mb-3">
     <h3 class="mb-0">Пользователи</h3>
+    {# Заголовок страницы — «Пользователи» #}
   </div>
 
   <table class="table table-striped table-bordered">
+    {# Таблица со всеми пользователями системы. #}
+
     <thead class="table-light">
       <tr>
         <th>ID</th>
@@ -14,29 +19,57 @@
         <th>Действия</th>
       </tr>
     </thead>
+
     <tbody>
       {% for user in users %}
+      {# Цикл по всем пользователям, список users передаётся из Python-кода. #}
+
         <tr>
           <td>{{ user.id }}</td>
+          {# Показываем уникальный номер пользователя. #}
+
           <td>{{ user.username }}</td>
+          {# Показываем логин пользователя. #}
+
           <td>
             <form method="POST" action="{{ url_for('web.update_user_role', user_id=user.id) }}">
+              {# Форма для изменения роли пользователя.
+                 При нажатии на кнопку запрос уйдёт на web.update_user_role. #}
+
               <select name="role" class="form-select" style="width: auto;">
+                {# Выпадающий список с выбором роли: пользователь или администратор. #}
+
                 <option value="user" {% if user.role == 'user' %}selected{% endif %}>Пользователь</option>
+                {# Если текущая роль — 'user', этот пункт выделяется как выбранный. #}
+
                 <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Администратор</option>
+                {# Аналогично для роли администратора. #}
               </select>
+
               <button type="submit" class="btn btn-warning btn-sm mt-2">Изменить роль</button>
+              {# Кнопка сохранения новой роли. #}
             </form>
           </td>
+
           <td>
             <form method="POST" action="{{ url_for('web.delete_user', user_id=user.id) }}" style="display:inline;">
+              {# Вторая форма — для удаления пользователя. #}
+
               <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+              {# Кнопка удаления пользователя. #}
             </form>
           </td>
         </tr>
+
       {% else %}
-        <tr><td colspan="4" class="text-center text-muted">Нет пользователей</td></tr>
+      {# Если в списке users нет ни одного пользователя, выполняется этот блок #}
+
+        <tr>
+          <td colspan="4" class="text-center text-muted">Нет пользователей</td>
+        </tr>
+
       {% endfor %}
     </tbody>
   </table>
+
 {% endblock %}

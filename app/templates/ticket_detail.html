@@ -1,34 +1,81 @@
 {% extends "base.html" %}
+{# Используем общий шаблон base.html для шапки/меню/стилей #}
 
 {% block content %}
   <h3>Заявка №{{ t.id }}</h3>
+  {# Заголовок: выводим текст «Заявка №» и подставляем id заявки t.id #}
+
   <div class="card">
+    {# Визуальный блок-карта (карточка) Bootstrap для красивого оформления #}
+
     <div class="card-body">
+      {# Содержимое карточки #}
+
       <p><strong>Название:</strong> {{ t.title }}</p>
+      {# Показываем название заявки. t.title берётся из объекта заявки. #}
+
       <p><strong>Описание:</strong> {{ t.description or "—" }}</p>
+      {# Показываем описание заявки. Если описания нет (пусто),
+         то вместо этого отображается «—» (тире). #}
+
       <p><strong>Статус:</strong> {{ t.status }}</p>
+      {# Показываем текущий статус: open / closed / in-progress #}
+
       <p class="text-muted"><strong>Автор:</strong> {{ t.author.username }}</p>
+      {# Показываем имя пользователя, который создал заявку.
+         t.author — связанный объект пользователя, берётся из базы.
+         t.author.username — его логин. #}
     </div>
   </div>
 
   {% if current_user.role == "admin" or t.author_id == current_user.id %}
+  {# Этот блок отображается только если:
+     - текущий пользователь администратор
+     ИЛИ
+     - текущий пользователь — автор этой заявки.
+     То есть обычный пользователь не может менять чужие заявки. #}
+
   <form method="POST" action="{{ url_for('web.update_ticket', ticket_id=t.id) }}">
+    {# Форма для изменения статуса заявки.
+       Отправляется методом POST на обработчик web.update_ticket. #}
+
     <label for="status">Изменить статус:</label>
+    {# Подпись к выпадающему списку выбора статуса. #}
+
     <select name="status" id="status" class="form-control">
+      {# Выпадающий список со статусами заявки. #}
+
       <option value="open" {% if t.status == 'open' %}selected{% endif %}>open</option>
+      {# Вариант статуса «open».
+         Если у заявки сейчас статус 'open', то добавляется selected,
+         и этот пункт будет выбран по умолчанию. #}
+
       <option value="closed" {% if t.status == 'closed' %}selected{% endif %}>closed</option>
+      {# То же самое для статуса «closed». #}
+
       <option value="in-progress" {% if t.status == 'in-progress' %}selected{% endif %}>in-progress</option>
+      {# То же самое для статуса «in-progress». #}
     </select>
+
     <button type="submit" class="btn btn-primary mt-3">Изменить статус</button>
+    {# Кнопка сохранить новый статус. #}
   </form>
 
   <form method="POST" action="{{ url_for('web.delete_ticket', ticket_id=t.id) }}">
+    {# Вторая форма — для удаления заявки. #}
+
     <button type="submit" class="btn btn-danger mt-3">Удалить заявку</button>
+    {# Кнопка удаления. После нажатия заявка будет удалена на сервере. #}
   </form>
 
   <!-- Кнопка редактирования -->
   <a href="{{ url_for('web.edit_ticket', ticket_id=t.id) }}" class="btn btn-warning mt-3">Редактировать заявку</a>
+  {# Обычная кнопка-ссылка на страницу редактирования заявки. #}
+
   {% endif %}
+  {# Конец условия: ниже кнопки есть только если у пользователя есть права. #}
 
   <a href="{{ url_for('web.tickets') }}" class="btn btn-secondary mt-3">Назад</a>
+  {# Кнопка-ссылка «Назад» — возвращает на список всех заявок. #}
+
 {% endblock %}

@@ -1,43 +1,50 @@
 import os
-from flask import Flask
+from flask import Flask, jsonify
 from .extensions import db, bcrypt, login_manager
-from .models import User, Ticket
+from .models import User
 
 
-def create_app(testing=False):
+def create_app(testing: bool = False) -> Flask:
     app = Flask(__name__)
+
+    # Конфиг
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "test-secret")
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:" if testing else "sqlite:///data.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        "sqlite:///:memory:" if testing else "sqlite:///data.db"
+    )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    # Init
+    # Расширения
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
 
-    # Flask-Login → НЕ ДЕЛАТЬ РЕДИРЕКТЫ НА /login
+    # Flask-Login: без редиректов на /login для API
     login_manager.login_view = None
     login_manager.session_protection = None
 
     @login_manager.user_loader
-    def load_user(user_id):
+    def load_user(user_id: str):
         return User.query.get(int(user_id))
 
     @login_manager.unauthorized_handler
     def unauthorized():
-        return {"error": "unauthorized"}, 401
+        # Для API-тестов
+        return jsonify({"error": "unauthorized"}), 401
 
-    # --- API ---
-    from app.api.auth_api import auth_api
-    from app.api.tickets_api import tickets_api
-    from app.api.admin_api import admin_api
+    # === Режим тестов: только JSON-API ===
+    if testing:
+        from .api.auth_api import auth_api
+        from .api.tickets_api import tickets_api
+        from .api.admin_api import admin_api
 
-    app.register_blueprint(auth_api)
-    app.register_blueprint(tickets_api)
-    app.register_blueprint(admin_api)
+        app.register_blueprint(auth_api)
+        app.register_blueprint(tickets_api)
+        app.register_blueprint(admin_api)
 
-    # --- WEB ---
-    from .web import web_bp
-    app.register_blueprint(web_bp)
+    # === Обычный режим: только веб-интерфейс ===
+    else:
+        from .web import web_bp
+        app.register_blueprint(web_bp)
 
     return app

@@ -1,15 +1,40 @@
 {% extends "base.html" %}
+{# Шаблон «наследуется» от base.html.
+   Это значит: общая шапка, меню, стили уже описаны в base.html,
+   а здесь мы задаём только содержимое внутри блока content. #}
+
 {% block content %}
   <h3>Регистрация</h3>
+  {# Заголовок страницы — просто текст «Регистрация» #}
+
   <form method="post" class="mt-3">
+    {# Форма, которая отправляет данные методом POST на тот же адрес (/register).
+       Класс mt-3 — отступ сверху (Bootstrap). #}
+
     <div class="mb-3">
       <label class="form-label">Имя пользователя</label>
+      {# Надпись над полем ввода, показывает пользователю, что сюда вводить. #}
+
       <input type="text" name="username" class="form-control" required>
+      {# Поле для ввода имени пользователя.
+         name="username" — это имя поля, по которому сервер будет забирать значение.
+         class="form-control" — оформление Bootstrap.
+         required — поле нельзя оставить пустым. #}
     </div>
+
     <div class="mb-3">
       <label class="form-label">Пароль</label>
+      {# Подпись к полю пароля. #}
+
       <input type="password" name="password" class="form-control" required>
+      {# Поле для ввода пароля.
+         type="password" — вводимые символы скрываются точками/звёздочками.
+         name="password" — сервер будет искать это поле по этому имени.
+         required — обязательно для заполнения. #}
     </div>
+
     <button class="btn btn-success">Зарегистрироваться</button>
+    {# Кнопка отправки формы. При нажатии форма отправляется на сервер. #}
   </form>
 {% endblock %}
+{# Конец блока content #}
